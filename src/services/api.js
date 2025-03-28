@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // frontend/src/services/api.js
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = "https://miniblog-backend-latest.onrender.com/api";
 
 export default API_URL;
 export const getPosts = () => axios.get(`${API_URL}/posts`);
