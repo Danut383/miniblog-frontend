@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import API_URL from "../services/api";
 
 function Home() {
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/reviews")
+    fetch(`${API_URL}/reviews`)
       .then((res) => {
         if (!res.ok) {
           throw new Error("Respuesta no válida del servidor");

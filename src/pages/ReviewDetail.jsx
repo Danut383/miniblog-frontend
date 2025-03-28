@@ -1,6 +1,7 @@
 // 📁 frontend/src/pages/ReviewDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import API_URL from "../services/api";
 
 function ReviewDetail() {
   const { id } = useParams();
@@ -13,12 +14,12 @@ function ReviewDetail() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/reviews/${id}`)
+    fetch(`${API_URL}/api/reviews/${id}`)
       .then((res) => res.json())
       .then(setReview)
       .catch((err) => console.error("Error cargando reseña:", err));
 
-    fetch(`http://localhost:5000/api/reviews/${id}/avg`)
+    fetch(`${API_URL}/reviews/${id}/avg`)
       .then((res) => res.json())
       .then((data) => setAvgRating(data.average))
       .catch((err) => console.error("Error promedio:", err));

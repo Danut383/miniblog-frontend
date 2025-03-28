@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieSearchInput from "../components/MovieSearchInput";
+import API_URL from "../services/api";
 
 function CreatePost() {
   const [movie, setMovie] = useState(null);
@@ -13,7 +14,7 @@ function CreatePost() {
     if (!movie) return alert("Debes seleccionar una película");
 
     try {
-      const res = await fetch("http://localhost:5000/api/reviews", {
+      const res = await fetch(`${API_URL}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

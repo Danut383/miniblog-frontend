@@ -1,6 +1,6 @@
 // 📁 frontend/src/pages/Profile.jsx
 import { useEffect, useState } from "react";
-
+import API_URL from "../services/api";
 function Profile() {
   const [reviews, setReviews] = useState([]);
   const [editMode, setEditMode] = useState(null);
@@ -15,7 +15,7 @@ function Profile() {
 
   const fetchUserReviews = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/reviews/user", {
+      const res = await fetch(`${API_URL}/reviews/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -31,7 +31,7 @@ function Profile() {
   const handleDelete = async (id) => {
     if (!confirm("¿Estás seguro de eliminar esta reseña?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+      const res = await fetch(`${API_URL}/api/reviews/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -52,7 +52,7 @@ function Profile() {
 
   const handleUpdate = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+      const res = await fetch(`${API_URL}/api/reviews/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -166,3 +166,4 @@ function Profile() {
 }
 
 export default Profile;
+  
