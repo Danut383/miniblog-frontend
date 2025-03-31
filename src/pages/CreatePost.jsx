@@ -1,3 +1,4 @@
+// 📁 frontend/src/pages/CreatePost.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieSearchInput from "../components/MovieSearchInput";
@@ -13,12 +14,15 @@ function CreatePost() {
     e.preventDefault();
     if (!movie) return alert("Debes seleccionar una película");
 
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Necesitas estar autenticado");
+
     try {
       const res = await fetch(`${API_URL}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`, // 👈 Aquí ya va bien
         },
         body: JSON.stringify({
           movieId: movie.id,
