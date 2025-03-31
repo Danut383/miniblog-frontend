@@ -25,7 +25,7 @@ function CreatePost() {
           Authorization: `Bearer ${token}`, // 👈 Aquí ya va bien
         },
         body: JSON.stringify({
-          movieId: movie.id,
+          movieId: String(movie.id),
           movieTitle: movie.title,
           posterPath: movie.poster_path,
           comment,
