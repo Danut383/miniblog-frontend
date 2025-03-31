@@ -12,35 +12,37 @@ function CreatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!movie) return alert("Debes seleccionar una película");
 
     const token = localStorage.getItem("token");
     if (!token) return alert("Necesitas estar autenticado");
+    if (!movie) return alert("Debes seleccionar una película");
+
+    const reviewData = {
+      movieId: String(movie.id), // 👈 esto es clave
+      movieTitle: movie.title,
+      posterPath: movie.poster_path,
+      comment,
+      rating,
+    };
 
     try {
       const res = await fetch(`${API_URL}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // 👈 Aquí ya va bien
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          movieId: String(movie.id),
-          movieTitle: movie.title,
-          posterPath: movie.poster_path,
-          comment,
-          rating,
-        }),
+        body: JSON.stringify(reviewData),
       });
 
       const data = await res.json();
 
-      if (res.ok) {
-        navigate("/");
-      } else {
+      if (!res.ok) {
         console.error("❌ Error backend:", data);
-        alert("Error al crear reseña: " + (data?.error || "Desconocido"));
+        return alert("Error al crear reseña: " + (data?.error || "Desconocido"));
       }
+
+      navigate("/");
     } catch (err) {
       console.error("⛔ Error en la solicitud:", err);
       alert("Error al enviar reseña");
@@ -52,11 +54,13 @@ function CreatePost() {
       <h2>Crear Reseña</h2>
       <form onSubmit={handleSubmit}>
         <MovieSearchInput onMovieSelect={setMovie} />
+
         {movie && (
           <div className="mb-3">
             <strong>Película seleccionada:</strong> {movie.title}
           </div>
         )}
+
         <div className="mb-3">
           <label>Comentario</label>
           <textarea
@@ -66,6 +70,7 @@ function CreatePost() {
             required
           />
         </div>
+
         <div className="mb-3">
           <label className="form-label">Calificación</label>
           <div className="d-flex gap-2">
@@ -84,6 +89,7 @@ function CreatePost() {
             ))}
           </div>
         </div>
+
         <button type="submit" className="btn btn-primary">
           Publicar Reseña
         </button>
