@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import API_URL from "../services/api";
 
 function ReviewDetail() {
-  const { id } = useParams();
+  const { id } = useParams(); // asegúrate que venga desde el router
   const [review, setReview] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
   const [newComment, setNewComment] = useState("");
@@ -14,7 +14,10 @@ function ReviewDetail() {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch(`${API_URL}/api/reviews/${id}`)
+    if (!id) return;
+
+    // ✅ URL bien formada, sin doble /api/api
+    fetch(`${API_URL}/reviews/${id}`)
       .then((res) => res.json())
       .then(setReview)
       .catch((err) => console.error("Error cargando reseña:", err));
@@ -30,12 +33,11 @@ function ReviewDetail() {
     if (!token) return alert("Debes iniciar sesión");
 
     try {
-      const res = await fetch(`http://localhost:5000/api/reviews/${id}/comments`, {
+      const res = await fetch(`${API_URL}/reviews/${id}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-
+          Authorization: `Bearer ${token}`, // ✅ así debe ir
         },
         body: JSON.stringify({
           text: newComment,
@@ -74,7 +76,7 @@ function ReviewDetail() {
 
   return (
     <div className="container mt-4">
-      <h2>🎥 {review.movieTitle}</h2>
+      <h2>📽️ {review.movieTitle}</h2>
       <div className="row mt-3">
         <div className="col-md-4">
           <img
@@ -84,10 +86,10 @@ function ReviewDetail() {
           />
         </div>
         <div className="col-md-8">
-          <p><strong>Publicado por:</strong> {review.username}</p>
+          <p><strong>Publicado por:</strong> {review.user?.username || "Usuario anónimo"}</p>
           <p><strong>Tu comentario:</strong> {review.comment}</p>
           <p><strong>Tu rating:</strong> ⭐ {review.rating}/5</p>
-          <p><strong>Rating promedio de la comunidad:</strong> {avgRating}</p>
+          <p><strong>Rating promedio de la comunidad:</strong> {avgRating || "Sin datos"}</p>
         </div>
       </div>
 
@@ -102,7 +104,7 @@ function ReviewDetail() {
             <li key={i} className="list-group-item">
               <div className="d-flex justify-content-between">
                 <div>
-                  <strong>Usuario:</strong> {c.username} <br /> {c.text}
+                  <strong>{c.username || "Usuario"}</strong>: {c.text}
                 </div>
                 <div>⭐ {c.rating}</div>
               </div>
