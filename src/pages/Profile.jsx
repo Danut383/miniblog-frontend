@@ -31,7 +31,7 @@ function Profile() {
   const handleDelete = async (id) => {
     if (!confirm("¿Estás seguro de eliminar esta reseña?")) return;
     try {
-      const res = await fetch(`${API_URL}/api/reviews/${id}`, {
+      const res = await fetch(`${API_URL}/reviews/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -52,7 +52,7 @@ function Profile() {
 
   const handleUpdate = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/api/reviews/${id}`, {
+      const res = await fetch(`${API_URL}/reviews/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
