@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import API_URL from "../services/api";
 
 function ReviewDetail() {
-  const { id } = useParams(); // asegúrate que venga desde el router
+  const { id } = useParams();
   const [review, setReview] = useState(null);
   const [avgRating, setAvgRating] = useState(null);
   const [newComment, setNewComment] = useState("");
@@ -16,16 +16,30 @@ function ReviewDetail() {
   useEffect(() => {
     if (!id) return;
 
-    // ✅ URL bien formada, sin doble /api/api
-    fetch(`${API_URL}/reviews/${id}`)
-      .then((res) => res.json())
-      .then(setReview)
-      .catch((err) => console.error("Error cargando reseña:", err));
+    const fetchReview = async () => {
+      try {
+        const res = await fetch(`${API_URL}/reviews/${id}`);
+        if (!res.ok) throw new Error("No se pudo cargar la reseña");
+        const data = await res.json();
+        setReview(data);
+      } catch (err) {
+        console.error("Error cargando reseña:", err);
+      }
+    };
 
-    fetch(`${API_URL}/reviews/${id}/avg`)
-      .then((res) => res.json())
-      .then((data) => setAvgRating(data.average))
-      .catch((err) => console.error("Error promedio:", err));
+    const fetchAvgRating = async () => {
+      try {
+        const res = await fetch(`${API_URL}/reviews/${id}/avg`);
+        if (!res.ok) throw new Error("No se pudo cargar el promedio");
+        const data = await res.json();
+        setAvgRating(data.average);
+      } catch (err) {
+        console.error("Error promedio:", err);
+      }
+    };
+
+    fetchReview();
+    fetchAvgRating();
   }, [id]);
 
   const handleSubmitComment = async (e) => {
@@ -37,7 +51,7 @@ function ReviewDetail() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ así debe ir
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           text: newComment,
@@ -86,10 +100,10 @@ function ReviewDetail() {
           />
         </div>
         <div className="col-md-8">
-          <p><strong>Publicado por:</strong> {review.user?.username || "Usuario anónimo"}</p>
+          <p><strong>Publicado por:</strong> {review.username || review.user?.username || "Desconocido"}</p>
           <p><strong>Tu comentario:</strong> {review.comment}</p>
           <p><strong>Tu rating:</strong> ⭐ {review.rating}/5</p>
-          <p><strong>Rating promedio de la comunidad:</strong> {avgRating || "Sin datos"}</p>
+          <p><strong>Rating promedio de la comunidad:</strong> {avgRating}</p>
         </div>
       </div>
 
@@ -104,7 +118,7 @@ function ReviewDetail() {
             <li key={i} className="list-group-item">
               <div className="d-flex justify-content-between">
                 <div>
-                  <strong>{c.username || "Usuario"}</strong>: {c.text}
+                  <strong>{c.username || "Anon"}</strong>: {c.text}
                 </div>
                 <div>⭐ {c.rating}</div>
               </div>
