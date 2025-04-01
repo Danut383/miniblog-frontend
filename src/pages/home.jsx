@@ -25,8 +25,8 @@ function Home() {
           <p className="text-muted">No hay reseñas todavía.</p>
         ) : (
           reviews.map((review) => (
-            <div key={review._id} className="col-md-4 mb-4">
-              <Link to={`/review/${review._id}`} className="text-decoration-none text-dark">
+            <div key={review.id} className="col-md-4 mb-4">
+              <Link to={`/review/${review.id}`} className="text-decoration-none text-dark">
                 <div className="card h-100 shadow-sm">
                   {review.posterPath && (
                     <img

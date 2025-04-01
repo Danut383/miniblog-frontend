@@ -45,7 +45,7 @@ function Profile() {
   };
 
   const handleEdit = (review) => {
-    setEditMode(review._id);
+    setEditMode(review.id);
     setUpdatedComment(review.comment);
     setUpdatedRating(review.rating);
   };
@@ -80,7 +80,7 @@ function Profile() {
       ) : (
         <div className="row">
           {reviews.map((review) => (
-            <div key={review._id} className="col-md-4 mb-4">
+            <div key={review.id} className="col-md-4 mb-4">
               <div className="card h-100 shadow-sm">
                 {review.posterPath && (
                   <img
@@ -92,7 +92,7 @@ function Profile() {
                 <div className="card-body">
                   <h5 className="card-title">{review.movieTitle}</h5>
 
-                  {editMode === review._id ? (
+                  {editMode === review.id ? (
                     <>
                       <textarea
                         className="form-control mb-2"
@@ -116,7 +116,7 @@ function Profile() {
                       </div>
                       <button
                         className="btn btn-sm btn-success me-2"
-                        onClick={() => handleUpdate(review._id)}
+                        onClick={() => handleUpdate(review.id)}
                       >
                         Guardar
                       </button>
@@ -139,7 +139,7 @@ function Profile() {
                       </button>
                       <button
                         className="btn btn-sm btn-outline-danger"
-                        onClick={() => handleDelete(review._id)}
+                        onClick={() => handleDelete(review.id)}
                       >
                         🗑️ Eliminar
                       </button>

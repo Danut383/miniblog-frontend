@@ -37,6 +37,7 @@ function AppContent() {
             <Route path="/create" element={<CreatePost />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/review/:id" element={<ReviewDetail />} />
+            
             <Route path="/discover" element={<Discover />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>
