@@ -6,7 +6,7 @@ import CreatePost from "./pages/CreatePost";
 import Login from "./pages/login";
 import Profile from "./pages/Profile";
 import Register from "./pages/register";
-import ReviewDetail from "./ReviewDetail";
+import ReviewDetail from "./pages/ReviewDetail";
 import Discover from "./pages/Discover";
 import Navbar from "./components/Navbar";
 
