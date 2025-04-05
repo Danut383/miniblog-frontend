@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { fetchMovieByQuery } from "../services/tmdb";
+
 import { motion } from "framer-motion";
+import { searchMovies } from "../services/tmdb"; // ✅ este sí existe
 
 function MovieSearchInput({ onMovieSelect }) {
   const [query, setQuery] = useState("");
