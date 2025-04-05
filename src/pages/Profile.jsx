@@ -1,6 +1,8 @@
-// 📁 frontend/src/pages/Profile.jsx
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import API_URL from "../services/api";
+import { Card, CardContent } from "@/components/ui/card";
+
 function Profile() {
   const [reviews, setReviews] = useState([]);
   const [editMode, setEditMode] = useState(null);
@@ -74,24 +76,30 @@ function Profile() {
 
   return (
     <div className="container mt-4">
-      <h2>👤 Mis Reseñas</h2>
+      <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-4 text-2xl font-bold">
+        👤 Mis Reseñas
+      </motion.h2>
       {reviews.length === 0 ? (
         <p className="text-muted">No has publicado ninguna reseña aún.</p>
       ) : (
-        <div className="row">
+        <div className="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
           {reviews.map((review) => (
-            <div key={review.id} className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm">
+            <motion.div
+              key={review.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="rounded-2xl overflow-hidden shadow-md h-full">
                 {review.posterPath && (
                   <img
                     src={`https://image.tmdb.org/t/p/w500${review.posterPath}`}
-                    className="card-img-top"
                     alt={review.movieTitle}
+                    className="w-full h-64 object-cover"
                   />
                 )}
-                <div className="card-body">
-                  <h5 className="card-title">{review.movieTitle}</h5>
-
+                <CardContent className="p-4 flex flex-col gap-2">
+                  <h5 className="text-lg font-semibold">{review.movieTitle}</h5>
                   {editMode === review.id ? (
                     <>
                       <textarea
@@ -99,7 +107,7 @@ function Profile() {
                         value={updatedComment}
                         onChange={(e) => setUpdatedComment(e.target.value)}
                       />
-                      <div className="mb-2 d-flex gap-2">
+                      <div className="mb-2 flex gap-2">
                         {[1, 2, 3, 4, 5].map((num) => (
                           <span
                             key={num}
@@ -114,39 +122,43 @@ function Profile() {
                           </span>
                         ))}
                       </div>
-                      <button
-                        className="btn btn-sm btn-success me-2"
-                        onClick={() => handleUpdate(review.id)}
-                      >
-                        Guardar
-                      </button>
-                      <button
-                        className="btn btn-sm btn-secondary"
-                        onClick={() => setEditMode(null)}
-                      >
-                        Cancelar
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          className="btn btn-sm btn-success"
+                          onClick={() => handleUpdate(review.id)}
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          className="btn btn-sm btn-secondary"
+                          onClick={() => setEditMode(null)}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     </>
                   ) : (
                     <>
-                      <p className="card-text">{review.comment}</p>
+                      <p>{review.comment}</p>
                       <p>⭐ {review.rating}/5</p>
-                      <button
-                        className="btn btn-sm btn-outline-primary me-2"
-                        onClick={() => handleEdit(review)}
-                      >
-                        📝 Editar
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => handleDelete(review.id)}
-                      >
-                        🗑️ Eliminar
-                      </button>
+                      <div className="flex justify-between mt-2">
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => handleEdit(review)}
+                        >
+                          📝 Editar
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDelete(review.id)}
+                        >
+                          🗑️
+                        </button>
+                      </div>
                     </>
                   )}
-                </div>
-                <div className="card-footer text-end">
+                </CardContent>
+                <div className="p-2 border-t text-end">
                   <a
                     href={`https://www.themoviedb.org/movie/${review.movieId}`}
                     target="_blank"
@@ -156,8 +168,8 @@ function Profile() {
                     Ver en TMDB
                   </a>
                 </div>
-              </div>
-            </div>
+              </Card>
+            </motion.div>
           ))}
         </div>
       )}
@@ -166,4 +178,3 @@ function Profile() {
 }
 
 export default Profile;
-  

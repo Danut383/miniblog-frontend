@@ -1,53 +1,63 @@
-// 📁 frontend/src/components/MovieSearchInput.jsx
 import { useState } from "react";
-
-const API_KEY = "5e44ab7258d398471596fe9f41cf43af";
+import { fetchMovieByQuery } from "../services/tmdb";
+import { motion } from "framer-motion";
 
 function MovieSearchInput({ onMovieSelect }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleSearch = async (e) => {
-    const val = e.target.value;
-    setQuery(val);
-    if (val.length < 2) return;
+    e.preventDefault();
+    if (!query.trim()) return;
 
     try {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${val}`
-      );
-      const data = await res.json();
+      const data = await fetchMovieByQuery(query);
       setResults(data.results || []);
+      setShowDropdown(true);
     } catch (err) {
-      console.error("Error buscando películas:", err);
+      console.error("Error al buscar película:", err);
     }
   };
 
+  const handleSelect = (movie) => {
+    onMovieSelect(movie);
+    setQuery(movie.title);
+    setShowDropdown(false);
+  };
+
   return (
-    <div>
-      <input
-        type="text"
-        className="form-control mb-2"
-        placeholder="Buscar película..."
-        value={query}
-        onChange={handleSearch}
-      />
-      {results.length > 0 && (
-        <ul className="list-group">
-          {results.slice(0, 5).map((movie) => (
+    <div className="mb-3 position-relative">
+      <form onSubmit={handleSearch} className="d-flex gap-2">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Buscar película..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button className="btn btn-primary" type="submit">
+          Buscar
+        </button>
+      </form>
+
+      {showDropdown && results.length > 0 && (
+        <motion.ul
+          className="list-group position-absolute w-100 shadow-sm z-3 mt-1"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {results.map((movie) => (
             <li
               key={movie.id}
               className="list-group-item list-group-item-action"
-              onClick={() => {
-                onMovieSelect(movie);
-                setQuery(movie.title);
-                setResults([]);
-              }}
+              style={{ cursor: "pointer" }}
+              onClick={() => handleSelect(movie)}
             >
-              🎬 {movie.title} ({movie.release_date?.slice(0, 4)})
+              🎬 {movie.title}
             </li>
           ))}
-        </ul>
+        </motion.ul>
       )}
     </div>
   );

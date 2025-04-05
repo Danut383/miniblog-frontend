@@ -1,51 +1,52 @@
+// 📁 frontend/src/components/Navbar.jsx
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function Navbar() {
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
-  const handleLogout = () => {
+  useEffect(() => {
+    setToken(localStorage.getItem("token"));
+  }, []);
+
+  const logout = () => {
     localStorage.removeItem("token");
     navigate("/login");
-    window.location.reload(); // Reinicia el estado de la app
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-      <Link className="navbar-brand" to="/">MiniBlog</Link>
-      <div className="collapse navbar-collapse justify-content-end">
-        <ul className="navbar-nav">
-          {!token ? (
-            <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/login">Iniciar Sesión</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/register">Registrarse</Link>
-              </li>
-            </>
-          ) : (
-            <>
-              <li className="nav-item">
-                <Link className="nav-link" to="/">Inicio</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/create">Crear Reseña</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/profile">Mi Perfil</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/discover">Descubrir</Link> {/* 💥 NUEVA RUTA */}
-              </li>
-              <li className="nav-item">
-                <button className="btn btn-sm btn-outline-light ms-2" onClick={handleLogout}>
-                  Cerrar Sesión
-                </button>
-              </li>
-            </>
-          )}
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm px-3">
+      <Link className="navbar-brand fw-bold" to="/">🎬 MiniBlog</Link>
+      <button
+        className="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+      >
+        <span className="navbar-toggler-icon"></span>
+      </button>
+      
+      <div className="collapse navbar-collapse" id="navbarNav">
+        <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          <li className="nav-item">
+            <Link className="nav-link" to="/">Inicio</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/discover">Descubrir</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/create">Crear Reseña</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/profile">Mi Perfil</Link>
+          </li>
         </ul>
+        {token && (
+          <button onClick={logout} className="btn btn-sm btn-outline-light">
+            Cerrar sesión
+          </button>
+        )}
       </div>
     </nav>
   );

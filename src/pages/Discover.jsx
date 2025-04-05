@@ -1,91 +1,75 @@
-// frontend/src/pages/Discover.jsx
 import { useEffect, useState } from "react";
-
-const API_KEY = "5e44ab7258d398471596fe9f41cf43af";
-const TMDB_BASE = "https://api.themoviedb.org/3";
+import { motion } from "framer-motion";
+import ReactPaginate from "react-paginate";
+import { fetchPopularMovies } from "../services/tmdb";
 
 function Discover() {
   const [movies, setMovies] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [search, setSearch] = useState("");
-  const [selectedGenre, setSelectedGenre] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetch(`${TMDB_BASE}/genre/movie/list?api_key=${API_KEY}&language=es`)
-      .then(res => res.json())
-      .then(data => setGenres(data.genres));
-  }, []);
+    const fetchData = async () => {
+      try {
+        const data = await fetchPopularMovies(page);
+        setMovies(data.results);
+        setTotalPages(Math.min(data.total_pages, 500)); // TMDB max 500 pages
+      } catch (err) {
+        console.error("Error al cargar pelis:", err);
+      }
+    };
+    fetchData();
+  }, [page]);
 
-  useEffect(() => {
-    let endpoint = `${TMDB_BASE}/movie/popular?api_key=${API_KEY}&language=es`;
-    if (search.length > 1) {
-      endpoint = `${TMDB_BASE}/search/movie?api_key=${API_KEY}&query=${search}`;
-    } else if (selectedGenre) {
-      endpoint = `${TMDB_BASE}/discover/movie?api_key=${API_KEY}&with_genres=${selectedGenre}`;
-    }
-
-    fetch(endpoint)
-      .then(res => res.json())
-      .then(data => setMovies(data.results || []));
-  }, [search, selectedGenre]);
+  const handlePageChange = ({ selected }) => setPage(selected + 1);
 
   return (
-    <div className="container mt-4">
+    <motion.div
+      className="container mt-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
       <h2 className="mb-4">🎬 Películas Populares</h2>
-
-      <div className="d-flex gap-3 mb-4">
-        <select
-          className="form-select"
-          value={selectedGenre}
-          onChange={(e) => setSelectedGenre(e.target.value)}
-        >
-          <option value="">Todas las categorías</option>
-          {genres.map((genre) => (
-            <option key={genre.id} value={genre.id}>
-              {genre.name}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Buscar película..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
 
       <div className="row">
         {movies.map((movie) => (
-          <div key={movie.id} className="col-md-3 mb-4">
-            <div className="card h-100 shadow-sm">
+          <motion.div
+            key={movie.id}
+            className="col-md-3 mb-4"
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="card h-100 shadow-sm border-0">
               <img
                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                 className="card-img-top"
                 alt={movie.title}
               />
               <div className="card-body">
-                <h5 className="card-title">{movie.title}</h5>
-                <p className="card-text">
-                  ⭐ {movie.vote_average} | {movie.release_date?.slice(0, 4)}
-                </p>
-              </div>
-              <div className="card-footer text-end">
-                <a
-                  href={`https://www.themoviedb.org/movie/${movie.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm btn-outline-primary"
-                >
-                  Ver más
-                </a>
+                <h5 className="card-title text-truncate">{movie.title}</h5>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
-    </div>
+
+      <div className="d-flex justify-content-center mt-4">
+        <ReactPaginate
+          previousLabel={"←"}
+          nextLabel={"→"}
+          breakLabel={"..."}
+          pageCount={totalPages}
+          onPageChange={handlePageChange}
+          containerClassName={"pagination"}
+          pageClassName={"page-item"}
+          pageLinkClassName={"page-link"}
+          previousClassName={"page-item"}
+          previousLinkClassName={"page-link"}
+          nextClassName={"page-item"}
+          nextLinkClassName={"page-link"}
+          activeClassName={"active"}
+        />
+      </div>
+    </motion.div>
   );
 }
 

@@ -1,7 +1,7 @@
-// 📁 frontend/src/pages/ReviewDetail.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API_URL from "../services/api";
+import { motion } from "framer-motion";
 
 function ReviewDetail() {
   const { id } = useParams();
@@ -67,13 +67,13 @@ function ReviewDetail() {
         setReview((prev) => ({
           ...prev,
           comments: [
-            ...prev.comments,
             {
               text: newComment,
               rating: newRating,
               createdAt: new Date().toISOString(),
-              username: "Tú",
+              user: { username: "Tú" },
             },
+            ...prev.comments,
           ],
         }));
         setNewComment("");
@@ -89,21 +89,27 @@ function ReviewDetail() {
   if (!review) return <div className="container mt-4">Cargando...</div>;
 
   return (
-    <div className="container mt-4">
-      <h2>📽️ {review.movieTitle}</h2>
-      <div className="row mt-3">
+    <motion.div
+      className="container mt-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <h2 className="mb-4">🎥 {review.movieTitle}</h2>
+      <div className="row">
         <div className="col-md-4">
-          <img
+          <motion.img
             src={`https://image.tmdb.org/t/p/w500${review.posterPath}`}
             alt={review.movieTitle}
-            className="img-fluid rounded shadow"
+            className="img-fluid rounded shadow-sm"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
           />
         </div>
         <div className="col-md-8">
-          <p><strong>Publicado por:</strong> {review.username || review.user?.username || "Desconocido"}</p>
-          <p><strong>Tu comentario:</strong> {review.comment}</p>
-          <p><strong>Tu rating:</strong> ⭐ {review.rating}/5</p>
-          <p><strong>Rating promedio de la comunidad:</strong> {avgRating}</p>
+          <p><strong>Autor:</strong> {review.user?.username || "Desconocido"}</p>
+          <p><strong>Comentario:</strong> {review.comment}</p>
+          <p><strong>Calificación:</strong> ⭐ {review.rating}/5</p>
+          <p><strong>Promedio comunidad:</strong> {avgRating}</p>
         </div>
       </div>
 
@@ -113,22 +119,34 @@ function ReviewDetail() {
       {review.comments?.length === 0 ? (
         <p className="text-muted">Aún no hay comentarios</p>
       ) : (
-        <ul className="list-group">
+        <motion.ul
+          className="list-group"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.05 } },
+          }}
+        >
           {review.comments.map((c, i) => (
-            <li key={i} className="list-group-item">
-              <div className="d-flex justify-content-between">
-                <div>
-                  <strong>{c.username || "Anon"}</strong>: {c.text}
-                </div>
-                <div>⭐ {c.rating}</div>
-              </div>
-            </li>
+            <motion.li
+              key={i}
+              className="list-group-item d-flex justify-content-between"
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0 },
+              }}
+            >
+              <span>
+                <strong>{c.user?.username || "Anónimo"}:</strong> {c.text}
+              </span>
+              <span>⭐ {c.rating}</span>
+            </motion.li>
           ))}
-        </ul>
+        </motion.ul>
       )}
 
       <hr />
-      <h5 className="mt-4">Agregar comentario</h5>
+      <h5 className="mt-4">📝 Agrega un comentario</h5>
       <form onSubmit={handleSubmitComment}>
         <div className="mb-3">
           <textarea
@@ -139,8 +157,8 @@ function ReviewDetail() {
             required
           />
         </div>
-        <div className="mb-3">
-          <label className="form-label me-2">Rating</label>
+        <div className="mb-3 d-flex align-items-center gap-2">
+          <label className="form-label me-2">Calificación:</label>
           {[1, 2, 3, 4, 5].map((n) => (
             <span
               key={n}
@@ -156,9 +174,9 @@ function ReviewDetail() {
           ))}
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
-        <button className="btn btn-primary" type="submit">Comentar</button>
+        <button type="submit" className="btn btn-primary">Enviar</button>
       </form>
-    </div>
+    </motion.div>
   );
 }
 
