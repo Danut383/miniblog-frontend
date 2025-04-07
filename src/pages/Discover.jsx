@@ -2,55 +2,56 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ReactPaginate from "react-paginate";
-import { fetchPopularMovies } from "../services/tmdb";
+import { searchMovies } from "../services/tmdb";
 
 function Discover() {
   const [movies, setMovies] = useState([]);
   const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchPopularMovies(page);
-        setMovies(data?.results || []);
-        setTotalPages(Math.min(data.total_pages || 1, 500)); // límite de TMDB
+        const result = await searchMovies(query || "a", page);
+        setMovies(result.results);
+        setTotalPages(Math.min(result.total_pages, 500));
       } catch (err) {
-        console.error("Error al cargar pelis:", err);
-        setMovies([]);
+        console.error("Error al cargar películas:", err);
       }
     };
     fetchData();
-  }, [page]);
+  }, [query, page]);
 
   const handlePageChange = ({ selected }) => setPage(selected + 1);
 
   return (
-    <motion.div
-      className="container mt-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      <h2 className="mb-4 text-center">🎬 Películas Populares</h2>
+    <motion.div className="container mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <h2 className="mb-4">🎬 Películas Populares</h2>
+
+      <div className="mb-3 d-flex gap-2">
+        <input
+          className="form-control"
+          placeholder="Buscar película..."
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(1);
+          }}
+        />
+      </div>
 
       <div className="row">
-        {Array.isArray(movies) && movies.map((movie) => (
-          <motion.div
-            key={movie.id}
-            className="col-6 col-sm-4 col-md-3 col-lg-2 mb-4"
-            whileHover={{ scale: 1.05 }}
-          >
+        {movies.map((movie) => (
+          <motion.div key={movie.id} className="col-md-3 mb-4" whileHover={{ scale: 1.05 }}>
             <div className="card h-100 shadow-sm border-0">
               <img
                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                className="card-img-top rounded"
+                className="card-img-top"
                 alt={movie.title}
-                style={{ height: "250px", objectFit: "cover" }}
               />
-              <div className="card-body p-2">
-                <h6 className="card-title text-truncate text-center mb-0">
-                  {movie.title}
-                </h6>
+              <div className="card-body">
+                <h5 className="card-title text-truncate">{movie.title}</h5>
               </div>
             </div>
           </motion.div>

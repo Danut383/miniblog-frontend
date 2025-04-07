@@ -1,3 +1,4 @@
+// 📁 frontend/src/pages/CreatePost.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieSearchInput from "../components/MovieSearchInput";
@@ -11,8 +12,7 @@ function CreatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!movie) return alert("Debes seleccionar una película");
-
+    if (!movie) return alert("Selecciona una película");
     const token = localStorage.getItem("token");
     if (!token) return alert("Necesitas estar autenticado");
 
@@ -32,45 +32,36 @@ function CreatePost() {
         }),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
         navigate("/");
       } else {
-        console.error("❌ Error backend:", data);
+        const data = await res.json();
         alert("Error al crear reseña: " + (data?.error || "Desconocido"));
       }
     } catch (err) {
-      console.error("⛔ Error en la solicitud:", err);
       alert("Error al enviar reseña");
     }
   };
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Crear Reseña</h2>
-
+      <h2>Crear Reseña</h2>
       <form onSubmit={handleSubmit}>
         <MovieSearchInput onMovieSelect={setMovie} />
-
         {movie && (
-          <div className="mb-3">
-            <strong>Película seleccionada:</strong>
-            <div className="card mt-2" style={{ maxWidth: "200px" }}>
+          <div className="mb-3 mt-2">
+            <div className="d-flex align-items-center gap-3">
               <img
-                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
                 alt={movie.title}
-                className="card-img-top"
+                style={{ borderRadius: "10px", maxHeight: "150px" }}
               />
-              <div className="card-body">
-                <h6 className="card-title text-truncate mb-0">{movie.title}</h6>
-              </div>
+              <h5 className="mb-0">{movie.title}</h5>
             </div>
           </div>
         )}
-
-        <div className="mb-3">
-          <label className="form-label">Comentario</label>
+        <div className="mb-3 mt-3">
+          <label>Comentario</label>
           <textarea
             className="form-control"
             value={comment}
@@ -78,7 +69,6 @@ function CreatePost() {
             required
           />
         </div>
-
         <div className="mb-3">
           <label className="form-label">Calificación</label>
           <div className="d-flex gap-2">
@@ -97,7 +87,6 @@ function CreatePost() {
             ))}
           </div>
         </div>
-
         <button type="submit" className="btn btn-primary">
           Publicar Reseña
         </button>

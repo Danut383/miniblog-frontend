@@ -1,5 +1,5 @@
+// 📁 frontend/src/components/MovieSearchInput.jsx
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { searchMovies } from "../services/tmdb";
 
 function MovieSearchInput({ onMovieSelect }) {
@@ -7,58 +7,54 @@ function MovieSearchInput({ onMovieSelect }) {
   const [results, setResults] = useState([]);
 
   const handleSearch = async () => {
-    if (query.trim()) {
-      const data = await searchMovies(query);
-      setResults(data);
-    }
+    if (query.trim() === "") return;
+    const data = await searchMovies(query);
+    setResults(data.results || []);
   };
 
   return (
-    <div className="mb-3">
-      <div className="d-flex mb-2">
+    <div className="mb-3 position-relative">
+      <div className="d-flex gap-2">
         <input
           type="text"
-          className="form-control me-2"
+          className="form-control"
           placeholder="Buscar película..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <button className="btn btn-primary" onClick={handleSearch}>
+        <button type="button" className="btn btn-primary" onClick={handleSearch}>
           Buscar
         </button>
       </div>
 
       {results.length > 0 && (
-        <div className="row">
+        <ul
+          className="list-group position-absolute z-3 w-100 mt-2"
+          style={{ maxHeight: "300px", overflowY: "auto" }}
+        >
           {results.map((movie) => (
-            <motion.div
+            <li
               key={movie.id}
-              className="col-md-2 mb-3"
-              whileHover={{ scale: 1.03 }}
+              className="list-group-item list-group-item-action d-flex align-items-center"
+              onClick={() => {
+                onMovieSelect(movie);
+                setQuery(movie.title);
+                setResults([]);
+              }}
+              style={{ cursor: "pointer" }}
             >
-              <div
-                className="card h-100 shadow-sm border border-2"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  onMovieSelect(movie);
-                  setResults([]); // Oculta resultados después de seleccionar
-                  setQuery("");
-                }}
-              >
+              {movie.poster_path && (
                 <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
                   alt={movie.title}
-                  className="card-img-top"
+                  className="me-2"
+                  style={{ borderRadius: "4px" }}
                 />
-                <div className="card-body p-2">
-                  <h6 className="card-title text-truncate mb-0">
-                    {movie.title}
-                  </h6>
-                </div>
-              </div>
-            </motion.div>
+              )}
+              <span>{movie.title}</span>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );
