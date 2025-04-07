@@ -1,4 +1,3 @@
-// 📁 frontend/src/pages/CreatePost.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MovieSearchInput from "../components/MovieSearchInput";
@@ -12,18 +11,10 @@ function CreatePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!movie) return alert("Debes seleccionar una película");
 
     const token = localStorage.getItem("token");
     if (!token) return alert("Necesitas estar autenticado");
-    if (!movie) return alert("Debes seleccionar una película");
-
-    const reviewData = {
-      movieId: String(movie.id), // 👈 esto es clave
-      movieTitle: movie.title,
-      posterPath: movie.poster_path,
-      comment,
-      rating,
-    };
 
     try {
       const res = await fetch(`${API_URL}/reviews`, {
@@ -32,17 +23,23 @@ function CreatePost() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(reviewData),
+        body: JSON.stringify({
+          movieId: String(movie.id),
+          movieTitle: movie.title,
+          posterPath: movie.poster_path,
+          comment,
+          rating,
+        }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
+      if (res.ok) {
+        navigate("/");
+      } else {
         console.error("❌ Error backend:", data);
-        return alert("Error al crear reseña: " + (data?.error || "Desconocido"));
+        alert("Error al crear reseña: " + (data?.error || "Desconocido"));
       }
-
-      navigate("/");
     } catch (err) {
       console.error("⛔ Error en la solicitud:", err);
       alert("Error al enviar reseña");
@@ -51,18 +48,29 @@ function CreatePost() {
 
   return (
     <div className="container mt-4">
-      <h2>Crear Reseña</h2>
+      <h2 className="mb-4">Crear Reseña</h2>
+
       <form onSubmit={handleSubmit}>
         <MovieSearchInput onMovieSelect={setMovie} />
 
         {movie && (
           <div className="mb-3">
-            <strong>Película seleccionada:</strong> {movie.title}
+            <strong>Película seleccionada:</strong>
+            <div className="card mt-2" style={{ maxWidth: "200px" }}>
+              <img
+                src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                alt={movie.title}
+                className="card-img-top"
+              />
+              <div className="card-body">
+                <h6 className="card-title text-truncate mb-0">{movie.title}</h6>
+              </div>
+            </div>
           </div>
         )}
 
         <div className="mb-3">
-          <label>Comentario</label>
+          <label className="form-label">Comentario</label>
           <textarea
             className="form-control"
             value={comment}

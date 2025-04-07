@@ -35,7 +35,7 @@ function Home() {
           currentReviews.map((review) => (
             <motion.div
               key={review.id}
-              className="col-md-4 mb-4"
+              className="col-lg-3 col-md-4 col-sm-6 mb-4"
               whileHover={{ scale: 1.03 }}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}

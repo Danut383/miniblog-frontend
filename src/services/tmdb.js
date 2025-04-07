@@ -1,15 +1,12 @@
 import axios from "axios";
 
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+const API_KEY = "5e44ab7258d398471596fe9f41cf43af";
 const BASE_URL = "https://api.themoviedb.org/3";
 
 export const searchMovies = async (query) => {
   try {
     const response = await axios.get(`${BASE_URL}/search/movie`, {
-      params: {
-        api_key: API_KEY,
-        query,
-      },
+      params: { api_key: API_KEY, query },
     });
     return response.data.results;
   } catch (error) {
@@ -21,14 +18,11 @@ export const searchMovies = async (query) => {
 export const fetchPopularMovies = async (page = 1) => {
   try {
     const response = await axios.get(`${BASE_URL}/movie/popular`, {
-      params: {
-        api_key: API_KEY,
-        page,
-      },
+      params: { api_key: API_KEY, page },
     });
-    return response.data.results;
+    return response.data;
   } catch (error) {
-    console.error("Error al obtener películas populares:", error);
-    return [];
+    console.error("Error al cargar populares:", error);
+    return { results: [], total_pages: 1 };
   }
 };

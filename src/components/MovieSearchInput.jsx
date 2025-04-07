@@ -1,64 +1,64 @@
 import { useState } from "react";
-
 import { motion } from "framer-motion";
-import { searchMovies } from "../services/tmdb"; // ✅ este sí existe
+import { searchMovies } from "../services/tmdb";
 
 function MovieSearchInput({ onMovieSelect }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-
-    try {
-      const data = await fetchMovieByQuery(query);
-      setResults(data.results || []);
-      setShowDropdown(true);
-    } catch (err) {
-      console.error("Error al buscar película:", err);
+  const handleSearch = async () => {
+    if (query.trim()) {
+      const data = await searchMovies(query);
+      setResults(data);
     }
   };
 
-  const handleSelect = (movie) => {
-    onMovieSelect(movie);
-    setQuery(movie.title);
-    setShowDropdown(false);
-  };
-
   return (
-    <div className="mb-3 position-relative">
-      <form onSubmit={handleSearch} className="d-flex gap-2">
+    <div className="mb-3">
+      <div className="d-flex mb-2">
         <input
           type="text"
-          className="form-control"
+          className="form-control me-2"
           placeholder="Buscar película..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <button className="btn btn-primary" type="submit">
+        <button className="btn btn-primary" onClick={handleSearch}>
           Buscar
         </button>
-      </form>
+      </div>
 
-      {showDropdown && results.length > 0 && (
-        <motion.ul
-          className="list-group position-absolute w-100 shadow-sm z-3 mt-1"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
+      {results.length > 0 && (
+        <div className="row">
           {results.map((movie) => (
-            <li
+            <motion.div
               key={movie.id}
-              className="list-group-item list-group-item-action"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleSelect(movie)}
+              className="col-md-2 mb-3"
+              whileHover={{ scale: 1.03 }}
             >
-              🎬 {movie.title}
-            </li>
+              <div
+                className="card h-100 shadow-sm border border-2"
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  onMovieSelect(movie);
+                  setResults([]); // Oculta resultados después de seleccionar
+                  setQuery("");
+                }}
+              >
+                <img
+                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  alt={movie.title}
+                  className="card-img-top"
+                />
+                <div className="card-body p-2">
+                  <h6 className="card-title text-truncate mb-0">
+                    {movie.title}
+                  </h6>
+                </div>
+              </div>
+            </motion.div>
           ))}
-        </motion.ul>
+        </div>
       )}
     </div>
   );
