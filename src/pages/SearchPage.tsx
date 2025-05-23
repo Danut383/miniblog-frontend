@@ -3,6 +3,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import MovieGrid from '../components/movies/MovieGrid';
 import { searchMovies } from '../api/movies'; // Asegúrate de importar correctamente la función searchMovies
+import { Movie } from '../types/movie';
 
 const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

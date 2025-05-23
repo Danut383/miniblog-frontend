@@ -88,18 +88,14 @@ export const searchMovies = async (query: string): Promise<MoviesResponse> => {
 };
 
 export const getMoviesByGenre = async (genreId: number, page: number = 1): Promise<MoviesResponse> => {
-  try {
-    const response = await api.get<MoviesResponse>('/discover/movie', {
-      params: {
-        with_genres: genreId,
-        page,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching movies for genre ${genreId}:`, error);
-    throw error;
-  }
+  const response = await tmdbApi.get('/discover/movie', {
+    params: {
+      with_genres: genreId,
+      page,
+      language: 'es-ES'
+    }
+  });
+  return response.data;
 };
 
 export const getGenres = async () => {
