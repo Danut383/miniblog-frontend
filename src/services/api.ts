@@ -279,6 +279,37 @@ export const deleteComment = async (commentId: number, token: string) => {
   }
 };
 
+// --- FAVORITOS API ---
+export const getFavorites = async (token: string) => {
+  const response = await backendApi.get('/favorites/user', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+};
+
+export const checkIfFavorite = async (movieId: number, token: string) => {
+  const response = await backendApi.get(`/favorites/check/${movieId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data.isFavorite;
+};
+
+export const toggleFavorite = async (
+  movieId: number, 
+  movieTitle: string, 
+  posterPath: string, 
+  token: string
+) => {
+  const response = await backendApi.post('/favorites/toggle', {
+    movieId,
+    movieTitle,
+    posterPath
+  }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return response.data;
+}
+
 // Función para obtener reseñas de forma local cuando la API falla
 export const getMovieReviewsWithFallback = async (movieId: number | string): Promise<any[]> => {
   try {
