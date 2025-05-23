@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Film, Menu, X, Search } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
-import { useAuthStore } from '../../stores/authStore';
+import { useAuthStore } from '../../store/authStore';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

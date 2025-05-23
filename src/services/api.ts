@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { MovieDetails, MoviesResponse } from '../types/movie';
 
-// TMDB Configuration
-const TMDB_API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMzc2ZGU5OTdhM2ZlYmYwOWJmMDVmOTQ0MTY3OTA2YyIsIm5iZiI6MTczMzk3MDkwOS41NjMwMDAyLCJzdWIiOiI2NzVjNDNkZGM5MzU0ZGZkN2FhODM3MTMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.eiJ6xFRJmQsNZUu47Qbg44qJtZ-iGRhFX4AHvNBJ8oY';
+// TMDB Configuration - Usar variable de entorno o fallback
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMzc2ZGU5OTdhM2ZlYmYwOWJmMDVmOTQ0MTY3OTA2YyIsIm5iZiI6MTczNDc3MTk0My41NzEsInN1YiI6IjY3NWM0M2RkYzkzNTRkZmQ3YWE4MzcxMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.YHAfwV-GKhSjIE-Tr8rPZs1MXJPOhXo6fUOixvQdKZs';
 
 const tmdbApi = axios.create({
   baseURL: 'https://api.themoviedb.org/3',
