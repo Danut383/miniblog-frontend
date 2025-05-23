@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Film, Menu, X, Search } from 'lucide-react';
 import ThemeToggle from '../ui/ThemeToggle';
 import { useAuthStore } from '../../stores/authStore';
@@ -9,6 +9,7 @@ const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuthStore();
 
   const toggleMenu = () => {
@@ -30,7 +31,9 @@ const Header: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+      console.log(`Navegando a búsqueda con query: "${searchQuery}"`);
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery(''); // Limpiar después de buscar
     }
   };
 

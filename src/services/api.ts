@@ -67,14 +67,22 @@ export const getMovieDetails = async (id: number): Promise<MovieDetails> => {
   }
 };
 
-export const searchMovies = async (query: string, page: number = 1): Promise<MoviesResponse> => {
+// --- TMDB API FUNCTIONS ---
+export const searchMovies = async (query: string): Promise<MoviesResponse> => {
   try {
-    const response = await api.get<MoviesResponse>('/search/movie', {
-      params: { query, page },
+    const response = await api.get('/search/movie', {
+      params: {
+        query: query.trim(),
+        include_adult: false,
+        language: 'es-ES',
+        page: 1
+      }
     });
+    
+    console.log(`Búsqueda realizada para: "${query}", encontrados: ${response.data.results?.length || 0} resultados`);
     return response.data;
   } catch (error) {
-    console.error('Error searching movies:', error);
+    console.error('Error en búsqueda de películas:', error);
     throw error;
   }
 };
