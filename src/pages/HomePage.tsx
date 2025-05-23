@@ -11,7 +11,7 @@ import {
 } from '../services/api';
 import { Movie } from '../types/movie';
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
   const [topRatedMovies, setTopRatedMovies] = useState<Movie[]>([]);
   const [upcomingMovies, setUpcomingMovies] = useState<Movie[]>([]);
