@@ -106,7 +106,7 @@ export const getGenres = async () => {
 };
 
 // --- BACKEND API ---
-const BACKEND_URL = 'https://backendminiblog.onrender.com/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://backendminiblog.onrender.com/api';
 
 export const backendApi = axios.create({
   baseURL: BACKEND_URL,
