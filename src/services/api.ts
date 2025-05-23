@@ -1,7 +1,6 @@
 import axios from 'axios';
-import { Movie, MovieDetails, MoviesResponse } from '../types/movie';
+import { MovieDetails, MoviesResponse } from '../types/movie';
 // Importamos el store directamente, no el hook
-import { useAuthStore } from '../stores/authStore';
 
 // Normally, API keys should be handled by a backend service
 // For demonstration purposes, we'll use a free API key (limited functionality)
