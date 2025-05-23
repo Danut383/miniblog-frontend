@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Search } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Film, Menu, X, Search } from 'lucide-react';
+import ThemeToggle from '../ui/ThemeToggle';
 import { useAuthStore } from '../../store/authStore';
 
 const Header = () => {
@@ -8,6 +9,7 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,6 +20,8 @@ const Header = () => {
       setIsMenuOpen(false); // Cerrar menú móvil si está abierto
     }
   };
+
+  const isLoginPage = location.pathname === '/login';
 
   return (
     <header className="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
