@@ -70,7 +70,10 @@ const MovieDetailsPage: React.FC = () => {
   
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token || !reviewTitle || !reviewContent) return;
+    if (!token || !reviewTitle.trim() || !reviewContent.trim()) {
+      setReviewError('Por favor completa todos los campos');
+      return;
+    }
     
     setSubmittingReview(true);
     setReviewSuccess(false);
@@ -79,8 +82,8 @@ const MovieDetailsPage: React.FC = () => {
     try {
       const reviewData = {
         movieId: parseInt(id || '0'),
-        title: reviewTitle,
-        content: reviewContent,
+        title: reviewTitle.trim(),
+        content: reviewContent.trim(),
         rating: reviewRating || 0,
         posterPath: movie?.poster_path || '',
         movieTitle: movie?.title || '',
@@ -89,7 +92,7 @@ const MovieDetailsPage: React.FC = () => {
       console.log("Creando reseña con datos:", reviewData);
       
       // Usar nuestra función robusta para crear reseñas
-      const newReview = await createReviewWithFallback(reviewData, token);
+      const newReview = await createReviewWithFallback(reviewData, token, user);
       
       // Limpia el formulario
       setReviewTitle('');
@@ -104,21 +107,20 @@ const MovieDetailsPage: React.FC = () => {
       
       // Si la reseña es local (no se guardó en servidor por error)
       if (newReview.isLocal) {
-        setReviewError('La reseña se ha guardado localmente, pero no en el servidor. Inténtalo de nuevo más tarde.');
+        setReviewError('La reseña se guardó temporalmente. Se sincronizará cuando el servidor esté disponible.');
       }
       
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error al crear reseña:', err);
-      setReviewError('No se pudo guardar la reseña. Por favor, inténtalo de nuevo más tarde.');
+      
+      // Mostrar mensaje de error específico
+      if (err.message) {
+        setReviewError(err.message);
+      } else {
+        setReviewError('No se pudo guardar la reseña. Por favor, inténtalo de nuevo más tarde.');
+      }
     } finally {
       setSubmittingReview(false);
-      
-      // Auto-ocultar mensaje de éxito después de 5 segundos
-      if (reviewSuccess) {
-        setTimeout(() => {
-          setReviewSuccess(false);
-        }, 5000);
-      }
     }
   };
   

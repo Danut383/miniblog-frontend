@@ -138,8 +138,8 @@ export const login = async (email: string, password: string) => {
 export const getMovieReviews = async (movieId: number | string): Promise<any[]> => {
   const endpoints = [
     `/reviews/movie/${movieId}`, 
-    `/reviews/m/${movieId}`, 
-    `/movies/${movieId}/reviews`
+    `/reviews/${movieId}`, 
+    `/reviews?movieId=${movieId}`
   ];
   
   for (const endpoint of endpoints) {
@@ -150,11 +150,14 @@ export const getMovieReviews = async (movieId: number | string): Promise<any[]> 
       if (response.data && Array.isArray(response.data)) {
         console.log(`Éxito! Se encontraron ${response.data.length} reseñas`);
         return response.data;
+      } else if (response.data && response.data.reviews && Array.isArray(response.data.reviews)) {
+        console.log(`Éxito! Se encontraron ${response.data.reviews.length} reseñas`);
+        return response.data.reviews;
       } else {
         console.warn(`El endpoint ${endpoint} no devolvió un array:`, response.data);
       }
     } catch (error: any) {
-      console.warn(`Error al intentar ${endpoint}:`, error.message);
+      console.warn(`Error al intentar ${endpoint}:`, error.response?.status || error.message);
       // Continuamos con el siguiente endpoint
     }
   }
@@ -179,11 +182,19 @@ export const createReview = async (
   token: string
 ): Promise<any> => {
   try {
+    // Validar datos antes de enviar
+    if (!data.title || !data.content || !token) {
+      throw new Error('Faltan datos requeridos: título, contenido o token');
+    }
+
     // Aseguramos que movieId sea un número
     const reviewData = {
-      ...data,
       movieId: Number(data.movieId),
-      rating: Number(data.rating) || 0
+      title: data.title.trim(),
+      content: data.content.trim(),
+      rating: Number(data.rating) || 0,
+      posterPath: data.posterPath || '',
+      movieTitle: data.movieTitle || ''
     };
     
     console.log('Creando reseña con datos:', reviewData);
@@ -192,7 +203,8 @@ export const createReview = async (
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
-      }
+      },
+      timeout: 10000 // 10 segundos de timeout
     });
     
     console.log('Reseña creada exitosamente:', response.data);
@@ -200,18 +212,17 @@ export const createReview = async (
   } catch (error: any) {
     console.error('Error al crear reseña:', error.response?.data || error.message);
     
-    // Si el error es por duplicado, intentamos actualizar en su lugar
+    // Mejor manejo de errores específicos
     if (error.response?.status === 409) {
-      try {
-        const updateResponse = await backendApi.put(`/reviews/movie/${data.movieId}`, data, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        console.log('Reseña actualizada en su lugar:', updateResponse.data);
-        return updateResponse.data;
-      } catch (updateError: any) {
-        console.error('Error al actualizar reseña existente:', updateError.message);
-        throw updateError;
-      }
+      throw new Error('Ya tienes una reseña para esta película');
+    } else if (error.response?.status === 401) {
+      throw new Error('No estás autorizado. Por favor inicia sesión nuevamente');
+    } else if (error.response?.status === 400) {
+      throw new Error('Datos inválidos. Verifica que todos los campos estén completos');
+    } else if (error.response?.status >= 500) {
+      throw new Error('Error del servidor. Inténtalo de nuevo más tarde');
+    } else if (error.code === 'ECONNABORTED') {
+      throw new Error('La conexión tardó demasiado. Verifica tu internet');
     }
     
     throw error;
@@ -283,7 +294,7 @@ export const getMovieReviewsWithFallback = async (movieId: number | string): Pro
   }
 };
 
-// Función de creación de reseña con fallback
+// Función de creación de reseña con fallback mejorado
 export const createReviewWithFallback = async (
   data: { 
     movieId: number, 
@@ -294,32 +305,41 @@ export const createReviewWithFallback = async (
     movieTitle?: string 
   }, 
   token: string,
-  currentUser?: any // Añadir usuario como parámetro opcional
+  currentUser?: any
 ): Promise<any> => {
   try {
     // Intentar usar el API real
     return await createReview(data, token);
   } catch (error: any) {
-    console.error('Creación de reseña falló, implementando fallback local:', error.message);
+    console.error('Creación de reseña falló:', error.message);
     
-    // Crear un objeto de reseña local para simular respuesta exitosa
-    return {
-      id: `local_${Date.now()}`,
-      title: data.title,
-      content: data.content,
-      rating: data.rating,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      userId: currentUser?.id || 999999,
-      movieId: data.movieId,
-      posterPath: data.posterPath,
-      isLocal: true,
-      user: {
-        id: currentUser?.id || 999999,
-        name: currentUser?.name || 'Usuario actual',
-        email: currentUser?.email || 'usuario@ejemplo.com'
-      }
-    };
+    // Solo crear fallback local en casos específicos
+    if (error.response?.status >= 500 || error.code === 'ECONNABORTED') {
+      console.log('Implementando fallback local debido a error del servidor');
+      
+      // Crear un objeto de reseña local para simular respuesta exitosa
+      return {
+        id: `local_${Date.now()}`,
+        title: data.title,
+        content: data.content,
+        rating: data.rating,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: currentUser?.id || 999999,
+        movieId: data.movieId,
+        posterPath: data.posterPath,
+        movieTitle: data.movieTitle,
+        isLocal: true,
+        user: {
+          id: currentUser?.id || 999999,
+          name: currentUser?.name || 'Usuario actual',
+          email: currentUser?.email || 'usuario@ejemplo.com'
+        }
+      };
+    }
+    
+    // Para otros errores, relanzar el error para que lo maneje el componente
+    throw error;
   }
 };
 
