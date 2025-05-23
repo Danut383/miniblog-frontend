@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
-import MovieGrid from '../components/movies/MovieGrid';
-import { searchMovies } from '../api/movies'; // Asegúrate de importar correctamente la función searchMovies
+import MovieCard from '../components/movies/MovieCard';
+import { searchMovies } from '../services/api';
 import { Movie } from '../types/movie';
 
 const SearchPage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasSearched, setHasSearched] = useState(false);
+
   const location = useLocation();
 
   useEffect(() => {
@@ -23,17 +22,12 @@ const SearchPage: React.FC = () => {
     }
   }, [location]);
 
-  useEffect(() => {
-    document.title = `Search: ${searchQuery} | CinemaBlog`;
-  }, [searchQuery]);
-
   const handleSearch = async (query?: string) => {
     const searchTerm = query || searchQuery;
     if (!searchTerm.trim()) return;
 
     setLoading(true);
     setError(null);
-    setHasSearched(true);
 
     try {
       console.log(`Iniciando búsqueda para: "${searchTerm}"`);
@@ -52,64 +46,88 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const searchInput = form.elements.namedItem('search') as HTMLInputElement;
-    
-    if (searchInput.value.trim()) {
-      setSearchParams({ q: searchInput.value.trim() });
-    }
+    handleSearch();
   };
 
   return (
-    <main className="pt-24 pb-12">
-      <div className="container-custom mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-heading font-bold mb-6">Search Movies</h1>
-          
-          {/* Search Form */}
-          <form onSubmit={handleSearchSubmit} className="mb-8">
-            <div className="relative max-w-2xl">
-              <input
-                type="text"
-                name="search"
-                defaultValue={searchQuery}
-                placeholder="Search for movies..."
-                className="w-full py-3 pl-12 pr-4 rounded-lg text-black bg-white placeholder-gray-400 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 btn-primary py-1.5 px-4 rounded-md"
-              >
-                Search
-              </button>
-            </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4">
+        {/* Search Form */}
+        <div className="max-w-2xl mx-auto mb-8">
+          <form onSubmit={handleFormSubmit} className="relative">
+            <input
+              type="text"
+              placeholder="Buscar películas..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-6 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+            <button
+              type="submit"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+            >
+              <Search size={20} />
+            </button>
           </form>
-          
-          {searchQuery && (
-            <div className="mb-6">
-              <h2 className="text-xl font-medium">
-                Search results for: <span className="font-semibold">"{searchQuery}"</span>
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                Found {loading ? '...' : movies.length === 0 ? 'no' : movies.length} movies
-              </p>
-            </div>
-          )}
         </div>
-        
-        <MovieGrid
-          movies={movies}
-          loading={loading}
-          error={error}
-          page={1} // Cambia esto si implementas paginación
-          totalPages={1} // Cambia esto si implementas paginación
-          onPageChange={() => {}} // Cambia esto si implementas paginación
-        />
+
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Buscando películas...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-red-600 text-lg">{error}</p>
+          </div>
+        )}
+
+        {/* Results */}
+        {!loading && !error && movies.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+              Resultados para "{new URLSearchParams(location.search).get('q')}" ({movies.length} películas)
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {movies.map((movie) => (
+                <MovieCard key={movie.id} movie={movie} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* No Results */}
+        {!loading && !error && movies.length === 0 && searchQuery && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">
+              No se encontraron películas para "{searchQuery}"
+            </p>
+            <p className="text-gray-500 mt-2">
+              Intenta con otros términos de búsqueda
+            </p>
+          </div>
+        )}
+
+        {/* Initial State */}
+        {!loading && !error && movies.length === 0 && !searchQuery && (
+          <div className="text-center py-12">
+            <Search size={64} className="mx-auto text-gray-400 mb-4" />
+            <p className="text-gray-600 text-lg">
+              Busca tus películas favoritas
+            </p>
+            <p className="text-gray-500 mt-2">
+              Usa el buscador para encontrar información sobre cualquier película
+            </p>
+          </div>
+        )}
       </div>
-    </main>
+    </div>
   );
 };
 

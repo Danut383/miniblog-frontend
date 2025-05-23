@@ -1,26 +1,42 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Film, Star, TrendingUp, Calendar } from 'lucide-react';
 import HeroSlider from '../components/movies/HeroSlider';
 import MovieCard from '../components/movies/MovieCard';
-import { useMovies } from '../hooks/useMovies';
 import { motion } from 'framer-motion';
+import { 
+  getPopularMovies, 
+  getTopRatedMovies, 
+  getUpcomingMovies 
+} from '../api/movies'; // Adjust the import based on your project structure
 
 const HomePage: React.FC = () => {
-  const { 
-    movies: popularMovies,
-    loading: popularLoading,
-  } = useMovies({ category: 'popular' });
-  
-  const { 
-    movies: topRatedMovies,
-    loading: topRatedLoading,
-  } = useMovies({ category: 'top_rated' });
-  
-  const { 
-    movies: upcomingMovies,
-    loading: upcomingLoading,
-  } = useMovies({ category: 'upcoming' });
+  const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  const [topRatedMovies, setTopRatedMovies] = useState<Movie[]>([]);
+  const [upcomingMovies, setUpcomingMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const [popular, topRated, upcoming] = await Promise.all([
+          getPopularMovies(1),
+          getTopRatedMovies(1),
+          getUpcomingMovies(1)
+        ]);
+        
+        setPopularMovies(popular.results.slice(0, 10));
+        setTopRatedMovies(topRated.results.slice(0, 10));
+        setUpcomingMovies(upcoming.results.slice(0, 10));
+      } catch (error) {
+        console.error('Error fetching home data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
 
   // Change page title on component mount
   useEffect(() => {
@@ -98,7 +114,7 @@ const HomePage: React.FC = () => {
   return (
     <main>
       {/* Hero Section with Slider */}
-      {!popularLoading && heroMovies.length > 0 && (
+      {!loading && heroMovies.length > 0 && (
         <HeroSlider movies={heroMovies} />
       )}
       
@@ -107,7 +123,7 @@ const HomePage: React.FC = () => {
         title="Popular Movies"
         icon={<Film className="text-primary-600 dark:text-primary-400" />}
         movies={popularMovies}
-        loading={popularLoading}
+        loading={loading}
         linkTo="/movies?category=popular"
       />
       
@@ -116,7 +132,7 @@ const HomePage: React.FC = () => {
         title="Top Rated"
         icon={<Star className="text-accent-400" />}
         movies={topRatedMovies}
-        loading={topRatedLoading}
+        loading={loading}
         linkTo="/movies?category=top_rated"
       />
       
@@ -125,7 +141,7 @@ const HomePage: React.FC = () => {
         title="Coming Soon"
         icon={<Calendar className="text-highlight-500" />}
         movies={upcomingMovies}
-        loading={upcomingLoading}
+        loading={loading}
         linkTo="/movies?category=upcoming"
       />
       

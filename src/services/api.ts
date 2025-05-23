@@ -70,7 +70,12 @@ export const getMovieDetails = async (id: number): Promise<MovieDetails> => {
 // --- TMDB API FUNCTIONS ---
 export const searchMovies = async (query: string): Promise<MoviesResponse> => {
   try {
-    const response = await api.get('/search/movie', {
+    const response = await axios.get('/search/movie', {
+      baseURL: 'https://api.themoviedb.org/3',
+      headers: {
+        'Authorization': `Bearer ${TMDB_API_KEY}`,
+        'accept': 'application/json'
+      },
       params: {
         query: query.trim(),
         include_adult: false,
