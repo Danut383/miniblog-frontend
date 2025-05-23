@@ -1,6 +1,16 @@
 import axios from 'axios';
 import { MovieDetails, MoviesResponse } from '../types/movie';
-// Importamos el store directamente, no el hook
+
+// TMDB Configuration
+const TMDB_API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMzc2ZGU5OTdhM2ZlYmYwOWJmMDVmOTQ0MTY3OTA2YyIsIm5iZiI6MTczMzk3MDkwOS41NjMwMDAyLCJzdWIiOiI2NzVjNDNkZGM5MzU0ZGZkN2FhODM3MTMiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.eiJ6xFRJmQsNZUu47Qbg44qJtZ-iGRhFX4AHvNBJ8oY';
+
+const tmdbApi = axios.create({
+  baseURL: 'https://api.themoviedb.org/3',
+  headers: {
+    'Authorization': `Bearer ${TMDB_API_KEY}`,
+    'accept': 'application/json'
+  }
+});
 
 // Normally, API keys should be handled by a backend service
 // For demonstration purposes, we'll use a free API key (limited functionality)
@@ -70,12 +80,7 @@ export const getMovieDetails = async (id: number): Promise<MovieDetails> => {
 // --- TMDB API FUNCTIONS ---
 export const searchMovies = async (query: string): Promise<MoviesResponse> => {
   try {
-    const response = await axios.get('/search/movie', {
-      baseURL: 'https://api.themoviedb.org/3',
-      headers: {
-        'Authorization': `Bearer ${TMDB_API_KEY}`,
-        'accept': 'application/json'
-      },
+    const response = await tmdbApi.get('/search/movie', {
       params: {
         query: query.trim(),
         include_adult: false,

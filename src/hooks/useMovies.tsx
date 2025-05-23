@@ -1,15 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { getPopularMovies, getTopRatedMovies, getUpcomingMovies, searchMovies, getMoviesByGenre } from '../services/api';
-import { Movie, MoviesResponse } from '../types/movie';
-
-type MovieCategory = 'popular' | 'top_rated' | 'upcoming' | 'search' | 'genre';
-
-interface UseMoviesProps {
-  category?: MovieCategory;
-  query?: string;
-  genreId?: number;
-  initialPage?: number;
-}
+import { getPopularMovies, getMoviesByGenre } from '../services/api';
+import { Movie } from '../types/movie';
 
 export const useMovies = () => {
   const [movies, setMovies] = useState<Movie[]>([]);

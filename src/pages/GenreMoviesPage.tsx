@@ -8,20 +8,26 @@ import { Genre } from '../types/movie';
 
 const GenreMoviesPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [genre, setGenre] = useState<Genre | null>(null);
-  const [loading, setLoading] = useState(true);
+  const genreId = parseInt(id || '0');
+  
+  const {
+    movies,
+    loading,
+    error,
+    page,
+    totalPages,
+    goToPage,
+    fetchMoviesByGenre
+  } = useMovies();
 
-  const { 
-    movies, 
-    loading: moviesLoading, 
-    error, 
-    page, 
-    totalPages, 
-    goToPage 
-  } = useMovies({ 
-    category: 'genre',
-    genreId: id ? parseInt(id) : undefined,
-  });
+  useEffect(() => {
+    if (genreId) {
+      fetchMoviesByGenre(genreId, 1);
+    }
+  }, [genreId, fetchMoviesByGenre]);
+
+  const [genre, setGenre] = useState<Genre | null>(null);
+  const [loadingGenre, setLoadingGenre] = useState(true);
 
   useEffect(() => {
     const fetchGenreName = async () => {
@@ -38,14 +44,14 @@ const GenreMoviesPage: React.FC = () => {
       } catch (err) {
         console.error('Error fetching genre:', err);
       } finally {
-        setLoading(false);
+        setLoadingGenre(false);
       }
     };
     
     fetchGenreName();
   }, [id]);
 
-  if (loading) {
+  if (loadingGenre) {
     return (
       <div className="pt-24 pb-12">
         <div className="container-custom mx-auto">
@@ -80,7 +86,7 @@ const GenreMoviesPage: React.FC = () => {
         
         <MovieGrid
           movies={movies}
-          loading={moviesLoading}
+          loading={loading}
           error={error}
           page={page}
           totalPages={totalPages}

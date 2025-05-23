@@ -8,7 +8,8 @@ import {
   getPopularMovies, 
   getTopRatedMovies, 
   getUpcomingMovies 
-} from '../api/movies'; // Adjust the import based on your project structure
+} from '../services/api';
+import { Movie } from '../types/movie';
 
 const HomePage: React.FC = () => {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);

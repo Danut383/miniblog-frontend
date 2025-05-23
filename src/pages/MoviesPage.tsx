@@ -18,10 +18,13 @@ const MoviesPage: React.FC = () => {
     error, 
     page, 
     totalPages, 
-    goToPage 
-  } = useMovies({ 
-    category: categoryParam as 'popular' | 'top_rated' | 'upcoming',
-  });
+    goToPage,
+    fetchMovies
+  } = useMovies();
+
+  useEffect(() => {
+    fetchMovies(1);
+  }, [fetchMovies]);
 
   // Update page title based on category
   useEffect(() => {
