@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Menu, X, Search } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -8,7 +8,6 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
